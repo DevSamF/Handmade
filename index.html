@@ -118,7 +118,7 @@
     .then((userCredential) => {
       const user = userCredential.user;
       //sendToAppInventor("login_sucesso:" + user.email); // ENVIA SEM CHECAR VERIFICAÇÃO
-      sendToAppInventor("login_sucesso:" + user.email); // ENVIA SEM CHECAR VERIFICAÇÃO
+      sendToAppInventor(user.email); // ENVIA SEM CHECAR VERIFICAÇÃO
 
       if (user.emailVerified) {
         showFeedback("Login realizado com sucesso!", true);
