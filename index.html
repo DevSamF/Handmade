@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login / Cadastro Firebase</title>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #121212;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    h2 {
+      margin-bottom: 10px;
+    }
+    input, button {
+      width: 80%;
+      padding: 12px;
+      margin: 6px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+    input {
+      background-color: #1f1f1f;
+      color: #fff;
+    }
+    button {
+      background-color: #00c853;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .toggle {
+      background-color: #2962ff;
+    }
+    .msg {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #ff5252;
+    }
+    .success {
+      color: #00e676;
+    }
+  </style>
+</head>
+<body>
+  <h2 id="form-title">Login</h2>
+  <input type="email" id="email" placeholder="Digite seu email" />
+  <input type="password" id="password" placeholder="Digite sua senha" />
+  <button onclick="handleAction()" id="main-action-btn">Entrar</button>
+  <button class="toggle" onclick="toggleMode()">Ainda não tem conta? Cadastre-se</button>
+  <div class="msg" id="feedback"></div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDR-dbCMTeQkMAhPMV4eMDvdByUyNQWAdY",
+      authDomain: "handmade-b26e3.firebaseapp.com",
+      projectId: "handmade-b26e3",
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    let isLogin = true;
+
+    function sendToAppInventor(message) {
+      if (window.AppInventor && typeof window.AppInventor.setWebViewString === "function") {
+        window.AppInventor.setWebViewString(message);
+      } else {
+        console.log("Simulação (fora do AppInventor):", message);
+      }
+    }
+
+    function showFeedback(msg, success = false) {
+      const feedback = document.getElementById("feedback");
+      feedback.textContent = msg;
+      feedback.className = success ? "msg success" : "msg";
+    }
+
+    function toggleMode() {
+      isLogin = !isLogin;
+      document.getElementById("form-title").textContent = isLogin ? "Login" : "Cadastro";
+      document.getElementById("main-action-btn").textContent = isLogin ? "Entrar" : "Cadastrar";
+      document.querySelector(".toggle").textContent = isLogin ? "Ainda não tem conta? Cadastre-se" : "Já tem conta? Faça login";
+      showFeedback("");
+    }
+
+    function handleAction() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (!email || !password) {
+        showFeedback("Preencha todos os campos.");
+        sendToAppInventor("erro:Preencha todos os campos");
+        return;
+      }
+
+      if (isLogin) {
+        loginUser(email, password);
+      } else {
+        registerUser(email, password);
+        
+      }
+    }
+
+    function loginUser(email, password) {
+  firebase.auth().signInWithEmailAndPassword(email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+      sendToAppInventor("login_sucesso:" + user.email); // ENVIA SEM CHECAR VERIFICAÇÃO
+
+      if (user.emailVerified) {
+        showFeedback("Login realizado com sucesso!", true);
+      } else {
+        showFeedback("Email não verificado. Ainda assim login enviado para app.");
+      }
+    })
+    .catch((error) => {
+      sendToAppInventor("login_erro:" + error.message);
+      showFeedback(error.message);
+    });
+}
+
+
+    function registerUser(email, password) {
+      firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          user.sendEmailVerification()
+            .then(() => {
+              sendToAppInventor("cadastro_sucesso:" + user.email);
+              showFeedback("Conta criada! Verifique seu email para ativar.", true);
+              toggleMode();
+            })
+            .catch((err) => {
+              sendToAppInventor("cadastro_erro:" + err.message);
+              showFeedback(err.message);
+            });
+        })
+        .catch((error) => {
+          sendToAppInventor("cadastro_erro:" + error.message);
+          showFeedback(error.message);
+        });
+    }
+  </script>
+</body>
+</html>
