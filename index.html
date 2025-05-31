@@ -10,8 +10,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&display=swap" rel="stylesheet">
   <!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 
 </head>
 
@@ -41,9 +41,9 @@
         </div>
 
         <p class="signup-text">
-  Ainda não tem uma conta?
-  <a href="#" class="link toggle" onclick="toggleMode()">Crie uma.</a>
-</p>
+          Ainda não tem uma conta?
+          <a href="#" class="link toggle" onclick="toggleMode()">Crie uma.</a>
+        </p>
 
 
         <button type="button" onclick="handleAction()" id="main-action-btn" class="login-btn">Entrar</button>
@@ -113,7 +113,12 @@
       firebase.auth().signInWithEmailAndPassword(email, password)
         .then((userCredential) => {
           const user = userCredential.user;
-          sendToAppInventor("login_sucesso:" + user.email); // ENVIA SEM CHECAR VERIFICAÇÃO
+          const name = user.displayName || "Usuário";
+          const photo = user.photoURL || "";
+
+          // Envia nome, foto e email para o App Inventor
+          const mensagem = `login_sucesso:${user.email};nome:${name};foto:${photo}`;
+          sendToAppInventor(mensagem);
 
           if (user.emailVerified) {
             showFeedback("Login realizado com sucesso!", true);
@@ -126,6 +131,7 @@
           showFeedback(error.message);
         });
     }
+
 
 
     function registerUser(email, password) {
