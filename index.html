@@ -9,6 +9,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&display=swap" rel="stylesheet">
+  <!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
 </head>
 
 <body>
@@ -32,16 +36,18 @@
         <div class="input-box">
           <input type="email" id="email" placeholder="Digite seu email" required />
           <input type="password" id="password" placeholder="Digite sua senha" required />
-
+          <div id="feedback" class="msg"></div>
           <a href="#" class="forgot-password">Esqueceu a senha?</a>
         </div>
 
         <p class="signup-text">
-          Ainda não tem uma conta?
-          <a href="#" class="link">Crie uma.</a>
-        </p>
+  Ainda não tem uma conta?
+  <a href="#" class="link toggle" onclick="toggleMode()">Crie uma.</a>
+</p>
 
-        <button onclick="handleAction()" id="main-action-btn" class="login-btn">Entrar</button>
+
+        <button type="button" onclick="handleAction()" id="main-action-btn" class="login-btn">Entrar</button>
+
 
       </form>
 
