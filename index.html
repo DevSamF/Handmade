@@ -1,68 +1,58 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login / Cadastro Firebase</title>
-
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #121212;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-    h2 {
-      margin-bottom: 10px;
-    }
-    input, button {
-      width: 80%;
-      padding: 12px;
-      margin: 6px;
-      border-radius: 8px;
-      border: none;
-      font-size: 16px;
-    }
-    input {
-      background-color: #1f1f1f;
-      color: #fff;
-    }
-    button {
-      background-color: #00c853;
-      color: #fff;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .toggle {
-      background-color: #2962ff;
-    }
-    .msg {
-      margin-top: 10px;
-      font-size: 14px;
-      color: #ff5252;
-    }
-    .success {
-      color: #00e676;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Handmade Login</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&display=swap" rel="stylesheet">
 </head>
-<body>
-  <h2 id="form-title">Login</h2>
-  <input type="email" id="email" placeholder="Digite seu email" />
-  <input type="password" id="password" placeholder="Digite sua senha" />
-  <button onclick="handleAction()" id="main-action-btn">Entrar</button>
-  <button class="toggle" onclick="toggleMode()">Ainda não tem conta? Cadastre-se</button>
-  <div class="msg" id="feedback"></div>
 
+<body>
+
+  <div class="container">
+    <img src="texturahandmade 1.png" alt="Imagem topo" class="top-image" />
+    <div class="card">
+
+
+      <h1 class="title">HANDMADE</h1>
+
+      <button class="google-btn">
+        <img src="Google.png" alt="Google" class="google-icon" />
+        Entrar com Google
+      </button>
+
+      <div class="divider"><span>Ou</span></div>
+
+      <form class="login-form">
+
+        <div class="input-box">
+          <input type="email" id="email" placeholder="Digite seu email" required />
+          <input type="password" id="password" placeholder="Digite sua senha" required />
+
+          <a href="#" class="forgot-password">Esqueceu a senha?</a>
+        </div>
+
+        <p class="signup-text">
+          Ainda não tem uma conta?
+          <a href="#" class="link">Crie uma.</a>
+        </p>
+
+        <button onclick="handleAction()" id="main-action-btn" class="login-btn">Entrar</button>
+
+      </form>
+
+
+
+
+    </div>
+
+
+
+  </div>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDR-dbCMTeQkMAhPMV4eMDvdByUyNQWAdY",
@@ -109,28 +99,27 @@
         loginUser(email, password);
       } else {
         registerUser(email, password);
-        
+
       }
     }
 
     function loginUser(email, password) {
-  firebase.auth().signInWithEmailAndPassword(email, password)
-    .then((userCredential) => {
-      const user = userCredential.user;
-      //sendToAppInventor("login_sucesso:" + user.email); // ENVIA SEM CHECAR VERIFICAÇÃO
-      sendToAppInventor(user.email); // ENVIA SEM CHECAR VERIFICAÇÃO
+      firebase.auth().signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          sendToAppInventor("login_sucesso:" + user.email); // ENVIA SEM CHECAR VERIFICAÇÃO
 
-      if (user.emailVerified) {
-        showFeedback("Login realizado com sucesso!", true);
-      } else {
-        showFeedback("Email não verificado. Ainda assim login enviado para app.");
-      }
-    })
-    .catch((error) => {
-      sendToAppInventor("login_erro:" + error.message);
-      showFeedback(error.message);
-    });
-}
+          if (user.emailVerified) {
+            showFeedback("Login realizado com sucesso!", true);
+          } else {
+            showFeedback("Email não verificado. Ainda assim login enviado para app.");
+          }
+        })
+        .catch((error) => {
+          sendToAppInventor("login_erro:" + error.message);
+          showFeedback(error.message);
+        });
+    }
 
 
     function registerUser(email, password) {
@@ -155,4 +144,5 @@
     }
   </script>
 </body>
+
 </html>
