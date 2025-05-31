@@ -116,8 +116,8 @@
           const name = user.displayName || "Usuário";
           const photo = user.photoURL || "";
 
-          // Envia nome, foto e email para o App Inventor
-          const mensagem = `login_sucesso:${user.email};nome:${name};foto:${photo}`;
+          // Alterar no seu arquivo HTML
+          const mensagem = `login_sucesso:email:${user.email};nome:${name || ""};foto:${photo || ""}`;
           sendToAppInventor(mensagem);
 
           if (user.emailVerified) {
