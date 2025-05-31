@@ -57,8 +57,11 @@
       authDomain: "handmade-b26e3.firebaseapp.com",
       projectId: "handmade-b26e3",
     };
-    firebase.initializeApp(firebaseConfig);
     
+    // Inicialização do Firebase com configuração para WebView
+    firebase.initializeApp(firebaseConfig);
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.NONE);
+
     // Configuração do provedor Google
     const googleProvider = new firebase.auth.GoogleAuthProvider();
 
@@ -80,13 +83,15 @@
 
     function toggleMode() {
       isLogin = !isLogin;
-      document.getElementById("form-title").textContent = isLogin ? "Login" : "Cadastro";
+      const formTitle = document.getElementById("form-title");
+      if(formTitle) formTitle.textContent = isLogin ? "Login" : "Cadastro";
+      
       document.getElementById("main-action-btn").textContent = isLogin ? "Entrar" : "Cadastrar";
-      document.querySelector(".toggle").textContent = isLogin ? "Ainda não tem conta? Cadastre-se" : "Já tem conta? Faça login";
+      document.querySelector(".toggle").textContent = isLogin ? "Crie uma." : "Faça login";
       showFeedback("");
     }
 
-    // Função para enviar dados do usuário de forma padronizada
+    // Função para enviar dados do usuário
     function sendUserData(user) {
       const userData = {
         email: user.email,
@@ -100,18 +105,41 @@
       showFeedback("Login realizado com sucesso!", true);
     }
 
-    // Login com Google
+    // Login com Google - Versão WebView compatível
     document.getElementById('googleLoginBtn').addEventListener('click', () => {
+      // Tenta primeiro com popup (para navegadores normais)
       firebase.auth().signInWithPopup(googleProvider)
         .then((result) => {
           sendUserData(result.user);
         })
-        .catch((error) => {
-          const errorMessage = error.message || "Erro ao autenticar com Google";
-          sendToAppInventor(`login_erro:${errorMessage}`);
-          showFeedback(errorMessage);
+        .catch((popupError) => {
+          // Se popup falhar, tenta com redirect (para WebView)
+          if(popupError.code === 'auth/operation-not-supported-in-this-environment') {
+            firebase.auth().signInWithRedirect(googleProvider)
+              .catch((redirectError) => {
+                const errorMessage = redirectError.message || "Erro ao autenticar com Google";
+                sendToAppInventor(`login_erro:${errorMessage}`);
+                showFeedback(errorMessage);
+              });
+          } else {
+            const errorMessage = popupError.message || "Erro ao autenticar com Google";
+            sendToAppInventor(`login_erro:${errorMessage}`);
+            showFeedback(errorMessage);
+          }
         });
     });
+
+    // Verifica resultado do redirect quando a página carrega
+    firebase.auth().getRedirectResult()
+      .then((result) => {
+        if (result.user) {
+          sendUserData(result.user);
+        }
+      })
+      .catch((error) => {
+        sendToAppInventor(`login_erro:${error.message}`);
+        showFeedback(error.message);
+      });
 
     function handleAction() {
       const email = document.getElementById("email").value.trim();
@@ -165,6 +193,9 @@
           showFeedback(error.message);
         });
     }
-  </script>
+
+    // Verificação inicial para limpar estado de autenticação
+    firebase.auth().signOut().catch(() => {});
+</script>
 </body>
 </html>
