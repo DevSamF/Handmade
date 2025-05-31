@@ -21,10 +21,9 @@
     <img src="texturahandmade 1.png" alt="Imagem topo" class="top-image" />
     <div class="card">
 
-
       <h1 class="title">HANDMADE</h1>
 
-      <button class="google-btn">
+      <button class="google-btn" id="googleLoginBtn">
         <img src="Google.png" alt="Google" class="google-icon" />
         Entrar com Google
       </button>
@@ -45,20 +44,13 @@
           <a href="#" class="link toggle" onclick="toggleMode()">Crie uma.</a>
         </p>
 
-
         <button type="button" onclick="handleAction()" id="main-action-btn" class="login-btn">Entrar</button>
-
 
       </form>
 
-
-
-
     </div>
-
-
-
   </div>
+
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDR-dbCMTeQkMAhPMV4eMDvdByUyNQWAdY",
@@ -66,6 +58,9 @@
       projectId: "handmade-b26e3",
     };
     firebase.initializeApp(firebaseConfig);
+    
+    // Configuração do provedor Google
+    const googleProvider = new firebase.auth.GoogleAuthProvider();
 
     let isLogin = true;
 
@@ -91,6 +86,33 @@
       showFeedback("");
     }
 
+    // Função para enviar dados do usuário de forma padronizada
+    function sendUserData(user) {
+      const userData = {
+        email: user.email,
+        nome: user.displayName || "Usuário",
+        foto: user.photoURL || "",
+        provider: user.providerData[0]?.providerId || "email/password"
+      };
+      
+      const mensagem = `login_sucesso:${JSON.stringify(userData)}`;
+      sendToAppInventor(mensagem);
+      showFeedback("Login realizado com sucesso!", true);
+    }
+
+    // Login com Google
+    document.getElementById('googleLoginBtn').addEventListener('click', () => {
+      firebase.auth().signInWithPopup(googleProvider)
+        .then((result) => {
+          sendUserData(result.user);
+        })
+        .catch((error) => {
+          const errorMessage = error.message || "Erro ao autenticar com Google";
+          sendToAppInventor(`login_erro:${errorMessage}`);
+          showFeedback(errorMessage);
+        });
+    });
+
     function handleAction() {
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value.trim();
@@ -105,24 +127,15 @@
         loginUser(email, password);
       } else {
         registerUser(email, password);
-
       }
     }
 
     function loginUser(email, password) {
       firebase.auth().signInWithEmailAndPassword(email, password)
         .then((userCredential) => {
-          const user = userCredential.user;
-          const name = user.displayName || "Usuário";
-          const photo = user.photoURL || "";
-
-          // Alterar no seu arquivo HTML
-          const mensagem = `login_sucesso:email:${user.email};nome:${name || ""};foto:${photo || ""}`;
-          sendToAppInventor(mensagem);
-
-          if (user.emailVerified) {
-            showFeedback("Login realizado com sucesso!", true);
-          } else {
+          sendUserData(userCredential.user);
+          
+          if (!userCredential.user.emailVerified) {
             showFeedback("Email não verificado. Ainda assim login enviado para app.");
           }
         })
@@ -131,8 +144,6 @@
           showFeedback(error.message);
         });
     }
-
-
 
     function registerUser(email, password) {
       firebase.auth().createUserWithEmailAndPassword(email, password)
@@ -156,5 +167,4 @@
     }
   </script>
 </body>
-
 </html>
